@@ -14,6 +14,7 @@ class App extends Component {
       nextId: 4,
     };
     this.handleNewListEntry = this.handleNewListEntry.bind(this);
+    this.handlleRemoveListEntry = this.handlleRemoveListEntry.bind(this);
   }
   render() {
 
@@ -26,16 +27,18 @@ class App extends Component {
         <h3>Add a Swim:</h3>
         <TableControls onItemSubmitted={this.handleNewListEntry}></TableControls>
         <h3>List of logged swimms:</h3>
-        <Table tableData={this.state.entries} ></Table>
+        <Table tableData={this.state.entries} handleRemoveEntry={this.handlleRemoveListEntry} ></Table>
       </div>
     );
   }
   handleNewListEntry(event){
-   
     //event.id = this.state.
     this.setState({entries:[...this.state.entries, {id:this.state.nextId,date:event.date,time:event.time,duration:event.duration}]});
     //this.setState({nextId:this.state.nextId+1});
-
+  }
+  handlleRemoveListEntry(rid,event){
+    const newListEntries = this.state.entries.filter(entries => {return entries.id !== rid});
+    this.setState({entries: [...newListEntries]})
   }
 }
 class TableControls extends Component {
@@ -54,9 +57,9 @@ class TableControls extends Component {
     return (
       <div id="controlContainer">
       <form onSubmit={this.handleSubmit}>
-      <label>Date of Swim:<input name="date" type="text" value={this.state.value} onChange={this.handleInputChange}></input></label>
-      <label>Time of Swim:<input name="time" type="text" value={this.state.value} onChange={this.handleInputChange}></input></label>
-      <label>Duration of Swim:<input name="duration" type="text" value={this.state.value} onChange={this.handleInputChange}></input></label>
+      <label>Date of Swim:<input name="date" type="date" value={this.state.value} onChange={this.handleInputChange}></input></label>
+      <label>Time of Swim:<input name="time" type="time" value={this.state.value} onChange={this.handleInputChange}></input></label>
+      <label>Duration of Swim (minutes):<input name="duration" type="number" value={this.state.value} onChange={this.handleInputChange}></input></label>
       <input type="submit" value="Submit"></input>
       </form>
       </div>
@@ -81,14 +84,23 @@ class TableControls extends Component {
 
 class Table extends Component {
   state = {  }
-  render() { 
-    const listItems = this.props.tableData.map((entry) =>
-    <tr>
-      <td>{entry.date}</td>
-      <td>{entry.time}</td>
-      <td>{entry.duration}</td>
+  render() {
+    let listItems = null;
+    if(this.props.tableData.length > 0){
+      listItems = this.props.tableData.map((entry) =>
+      <tr key={entry.id}>
+        <td>{entry.date}</td>
+        <td>{entry.time}</td>
+        <td>{entry.duration}</td>
+        <td><button onClick={(e) => this.handleRemoveEntry(entry.id,e)}>X</button></td>
+      </tr>
+      );
+  } else {
+    listItems = <tr key='0'>
+      <td>No entries in the Table!</td>
     </tr>
-    );
+
+  }
     return (
       <div id="tableContainer">
       <table><tbody>
@@ -96,11 +108,16 @@ class Table extends Component {
         <th>Date</th>
         <th>Time</th>
         <th>Duration</th>
+        <th>Remove Entry</th>
         </tr>
         {listItems}
         </tbody></table>
+        <button onClick={this.handleSaveTable}>Änderungen Speichern</button>
     </div>
    );
+  }
+  handleRemoveEntry(id,event){
+    this.props.handleRemoveEntry(id,event);
   }
 }
 
