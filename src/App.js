@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import * as firebase from 'firebase';
+import firebaseConfig from './firebase.json';
 
 class App extends Component {
   constructor(props){
     super(props);
+    firebase.initializeApp(firebaseConfig);
+
     this.state = {
       entries: [
         {id:1,date:"17.08.2017",time:"14:02",duration:"28"},
@@ -32,13 +36,27 @@ class App extends Component {
     );
   }
   handleNewListEntry(event){
-    //event.id = this.state.
     this.setState({entries:[...this.state.entries, {id:this.state.nextId,date:event.date,time:event.time,duration:event.duration}]});
-    //this.setState({nextId:this.state.nextId+1});
   }
   handlleRemoveListEntry(rid,event){
     const newListEntries = this.state.entries.filter(entries => {return entries.id !== rid});
     this.setState({entries: [...newListEntries]})
+  }
+
+  componentDidMount(){
+    let newArr = null;
+    var db = firebase.firestore();
+    db.collection("swims").get().then((querySnapshot) => { 
+      newArr = querySnapshot.docs.map(function(doc){
+        return {id : doc.id,date: doc.data().date,time: doc.data().time,duration: doc.data().duration};
+      });
+      console.log(newArr);
+      this.setState({
+        entries:newArr
+      });
+      
+
+  });
   }
 }
 class TableControls extends Component {
@@ -52,7 +70,6 @@ class TableControls extends Component {
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
-    
   render(){
     return (
       <div id="controlContainer">
@@ -63,13 +80,14 @@ class TableControls extends Component {
       <input type="submit" value="Submit"></input>
       </form>
       </div>
-
     )
   }
+  
   handleSubmit(event){
     this.props.onItemSubmitted(this.state);
     event.preventDefault();
   }
+
   handleInputChange(event){
     const target = event.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
@@ -78,12 +96,9 @@ class TableControls extends Component {
       [name]: value
     });
   }
-
-
 }
 
 class Table extends Component {
-  state = {  }
   render() {
     let listItems = null;
     if(this.props.tableData.length > 0){
