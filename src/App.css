@@ -9,7 +9,7 @@
 
 .App-header {
   background-color: #222;
-  height: 150px;
+  height: 70px;
   padding: 20px;
   color: white;
 }
@@ -31,17 +31,24 @@
   width: 100vh;
 }
 #controlContainer div {
-  float: center;
+  float: left;
 }
 #controlContainer div label {
   padding: 0px 10px 0px 0px ;
 }
 
 #tableContainer table {
-  float: center;
+  float: left;
   max-width: 500px;
   padding: 10px 10px 10px 10px;
 }
 th {
   padding: 10px 10px 10px 10px;
+}
+.inputForm{
+  text-align: left;
+}
+.inputForm label{
+  padding: 1pt 1pt 1pt 1pt;
+
 }
